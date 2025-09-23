@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Online Event Ticket Booking</title>
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background: url('event.jpg') no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  position: relative;
+}
+
+/* Dark overlay for readability */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: -1;
+}
+
+/* Frosted glass form container */
+.form-container {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  width: 380px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #fff;
+}
+
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border: 2px solid #e24a4a;
+}
+
+.btn-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.submit-btn {
+  background: #4CAF50;
+  color: white;
+}
+
+.submit-btn:hover {
+  background: #45a049;
+}
+
+.reset-btn {
+  background: #f44336;
+  color: white;
+}
+
+.reset-btn:hover {
+  background: #d32f2f;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-top: -12px;
+  margin-bottom: 10px;
+}
+
+/* Booking details box */
+#bookingDetails {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  width: 500px;
+  margin-top: 20px;
+  display: none;
+  color: #fff;
+}
+
+#bookingDetails h3 {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td, th {
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+th {
+  background: rgba(255,255,255,0.2);
+  text-align: left;
+}
+
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Event Ticket Booking</h2>
+    <form id="bookingForm">
+      <label for="username">User Name</label>
+      <input type="text" id="username" name="username" required>
+      <div id="usernameError" class="error"></div>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required>
+      <div id="emailError" class="error"></div>
+
+      <label for="phone">Phone Number</label>
+      <input type="text" id="phone" name="phone" required>
+      <div id="phoneError" class="error"></div>
+
+      <label for="event">Select Event</label>
+      <select id="event" name="event" required>
+        <option value="">-- Select an Event --</option>
+        <option value="Music Concert">Music Concert</option>
+        <option value="Theatre Show">Theatre Show</option>
+        <option value="Sports Match">Sports Match</option>
+        <option value="Tech Seminar">Tech Seminar</option>
+      </select>
+      <div id="eventError" class="error"></div>
+
+      <label for="tickets">Number of Tickets</label>
+      <input type="number" id="tickets" name="tickets" min="1" max="5" required>
+      <div id="ticketsError" class="error"></div>
+
+      <label for="date">Date & Time</label>
+      <input type="datetime-local" id="date" name="date" required>
+      <div id="dateError" class="error"></div>
+
+      <div class="btn-group">
+        <button type="submit" class="submit-btn">Submit</button>
+        <button type="reset" class="reset-btn">Reset</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Booking Details -->
+  <div id="bookingDetails">
+    <h3>Booking Details</h3>
+    <table>
+      <tr><th>User Name</th><td id="outName"></td></tr>
+      <tr><th>Email</th><td id="outEmail"></td></tr>
+      <tr><th>Phone</th><td id="outPhone"></td></tr>
+      <tr><th>Event</th><td id="outEvent"></td></tr>
+      <tr><th>Tickets</th><td id="outTickets"></td></tr>
+      <tr><th>Date & Time</th><td id="outDate"></td></tr>
+    </table>
+  </div>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+
+    form.addEventListener('submit', function(e) {
+      let valid = true;
+
+      // Clear old errors
+      document.querySelectorAll('.error').forEach(el => el.textContent = '');
+
+      // Username
+      const username = document.getElementById('username').value.trim();
+      if (username === "") {
+        document.getElementById('usernameError').textContent = "Name is required.";
+        valid = false;
+      }
+
+      // Email
+      const email = document.getElementById('email').value.trim();
+      const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (!emailPattern.test(email)) {
+        document.getElementById('emailError').textContent = "Enter a valid email.";
+        valid = false;
+      }
+
+      // Phone
+      const phone = document.getElementById('phone').value.trim();
+      const phonePattern = /^[0-9]{10}$/;
+      if (!phonePattern.test(phone)) {
+        document.getElementById('phoneError').textContent = "Phone must be 10 digits.";
+        valid = false;
+      }
+
+      // Event
+      const event = document.getElementById('event').value;
+      if (event === "") {
+        document.getElementById('eventError').textContent = "Please select an event.";
+        valid = false;
+      }
+
+      // Tickets
+      const tickets = parseInt(document.getElementById('tickets').value);
+      if (isNaN(tickets) || tickets < 1 || tickets > 5) {
+        document.getElementById('ticketsError').textContent = "Tickets must be between 1 and 5.";
+        valid = false;
+      }
+
+      // Date
+      const dateInput = document.getElementById('date').value;
+      const date = new Date(dateInput);
+      const now = new Date();
+      if (!dateInput || date < now) {
+        document.getElementById('dateError').textContent = "Date cannot be in the past.";
+        valid = false;
+      }
+
+      if (!valid) {
+        e.preventDefault();
+      } else {
+        e.preventDefault(); // prevent page reload
+        // Show booking details
+        document.getElementById('outName').textContent = username;
+        document.getElementById('outEmail').textContent = email;
+        document.getElementById('outPhone').textContent = phone;
+        document.getElementById('outEvent').textContent = event;
+        document.getElementById('outTickets').textContent = tickets;
+        document.getElementById('outDate').textContent = new Date(dateInput).toLocaleString();
+
+        document.getElementById('bookingDetails').style.display = "block";
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
